@@ -25,6 +25,7 @@ async function run() {
     const database = client.db("ride-a-bike");
     const bikeCollection = database.collection("bikes");
     const orderCollection = database.collection("booking");
+
     const usersCollection = database.collection("users");
 
     const reviewCollection = database.collection("review");
@@ -48,6 +49,29 @@ async function run() {
       const cursor = orderCollection.find(query);
       const myBooking = await cursor.toArray();
       res.send(myBooking);
+    });
+
+    app.get("/allBooking", async (req, res) => {
+      const cursor = orderCollection.find({});
+      const allBooking = await cursor.toArray();
+      res.send(allBooking);
+    });
+    app.put("/booking/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateBooking = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          status: "shipped",
+        },
+      };
+      const result = await orderCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.json(result);
     });
 
     app.get("/reviews", async (req, res) => {
